@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow Cafe</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    color: #fff;
+    background: linear-gradient(135deg, #1b102b, #46245f, #a04c78);
+    padding: 25px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    gap: 12px;
+}
+
+.logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: #ffd6a5;
+}
+
+.cart {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    padding: 12px 18px;
+    border-radius: 25px;
+    font-weight: bold;
+}
+
+.hero {
+    padding: 35px 0;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(32px, 7vw, 52px);
+    margin-bottom: 12px;
+}
+
+.hero h1 span {
+    color: #ffd6a5;
+}
+
+.hero p {
+    color: #e2d5ed;
+    line-height: 1.7;
+}
+
+h2 {
+    margin: 25px 0 18px;
+}
+
+.filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 25px;
+}
+
+.filters button {
+    border: 1px solid #ffffff35;
+    padding: 10px 17px;
+    border-radius: 20px;
+    color: white;
+    background: #ffffff12;
+    cursor: pointer;
+}
+
+.filters button.active,
+.filters button:hover {
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    border-color: transparent;
+}
+
+.menu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: #ffffff12;
+    border: 1px solid #ffffff20;
+    border-radius: 22px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+    transition: transform .25s;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+}
+
+.food {
+    height: 125px;
+    display: grid;
+    place-items: center;
+    font-size: 65px;
+    background: linear-gradient(135deg, #ffcf9f35, #d98cff25);
+    border-radius: 16px;
+    margin-bottom: 17px;
+}
+
+.card h3 {
+    margin-bottom: 8px;
+}
+
+.card p {
+    color: #d8c9e3;
+    font-size: 14px;
+    margin-bottom: 17px;
+}
+
+.bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.price {
+    color: #ffd6a5;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.add, .checkout {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+}
+
+.cart-panel {
+    margin-top: 35px;
+    padding: 24px;
+    background: #ffffff12;
+    border: 1px solid #ffffff20;
+    border-radius: 22px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ffffff20;
+}
+
+.cart-item button {
+    color: #ffd6a5;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding-left: 10px;
+}
+
+.total {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #ffd6a5;
+}
+
+.empty {
+    color: #d8c9e3;
+    padding: 10px 0;
+}
+
+footer {
+    text-align: center;
+    color: #d8c9e3;
+    padding: 35px 0 10px;
+}
+
+@media (max-width: 480px) {
+    body { padding: 16px; }
+    .logo { font-size: 22px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">☕ Glow Cafe</div>
+    <div class="cart">🛒 Cart: <span id="count">0</span></div>
+</header>
+
+<section class="hero">
+    <h1>Your Daily Dose of <span>Happiness.</span></h1>
+    <p>Fresh coffee, delicious treats, and cozy vibes.<br>
+    Find your favorite flavor and order something special.</p>
+</section>
+
+<h2>Explore Our Menu</h2>
+
+<div class="filters">
+    <button class="active" onclick="filterMenu('All', this)">All</button>
+    <button onclick="filterMenu('Coffee', this)">Coffee</button>
+    <button onclick="filterMenu('Tea', this)">Tea</button>
+    <button onclick="filterMenu('Dessert', this)">Desserts</button>
+</div>
+
+<div class="menu" id="menu"></div>
+
+<section class="cart-panel">
+    <h2>🛍️ Your Order</h2>
+    <div id="cartItems">
+        <p class="empty">Your cart is empty. Add something delicious!</p>
+    </div>
+    <div class="total">Total: ₹<span id="total">0</span></div>
+    <button class="checkout" onclick="checkout()">Place Order →</button>
+</section>
+
+<footer>Made with ☕ and love · Glow Cafe © 2026</footer>
+
+<script>
+const products = [
+    { id: 1, name: "Cappuccino", category: "Coffee",
+      price: 149, emoji: "☕", desc: "Smooth espresso with creamy milk foam." },
+    { id: 2, name: "Iced Coffee", category: "Coffee",
+      price: 129, emoji: "🧋", desc: "Chilled coffee for a refreshing break." },
+    { id: 3, name: "Matcha Tea", category: "Tea",
+      price: 119, emoji: "🍵", desc: "A calming cup of green tea." },
+    { id: 4, name: "Chocolate Cake", category: "Dessert",
+      price: 179, emoji: "🍰", desc: "Rich chocolate in every bite." },
+    { id: 5, name: "Croissant", category: "Dessert",
+      price: 99, emoji: "🥐", desc: "Golden, flaky, buttery goodness." },
+    { id: 6, name: "Cold Brew", category: "Coffee",
+      price: 159, emoji: "🧊", desc: "Slow-brewed coffee with a bold taste." }
+];
+
+let cart = [];
+let activeCategory = "All";
+
+function renderMenu() {
+    const filtered = activeCategory === "All"
+        ? products
+        : products.filter(p => p.category === activeCategory);
+
+    document.getElementById("menu").innerHTML =
+        filtered.map(p => `
+        <article class="card">
+            <div class="food">${p.emoji}</div>
+            <h3>${p.name}</h3>
+            <p>${p.desc}</p>
+            <div class="bottom">
+                <span class="price">₹${p.price}</span>
+                <button class="add" onclick="addToCart(${p.id})">
+                    + Add
+                </button>
+            </div>
+        </article>
+    `).join("");
+}
+
+function filterMenu(category, button) {
+    activeCategory = category;
+
+    document.querySelectorAll(".filters button")
+        .forEach(b => b.classList.remove("active"));
+
+    button.classList.add("active");
+    renderMenu();
+}
+
+function addToCart(id) {
+    const item = cart.find(p => p.id === id);
+
+    if (item) {
+        item.qty++;
+    } else {
+        cart.push({
+            ...products.find(p => p.id === id),
+            qty: 1
+        });
+    }
+
+    renderCart();
+}
+
+function changeQty(id, amount) {
+    const item = cart.find(p => p.id === id);
+    if (!item) return;
+
+    item.qty += amount;
+    cart = cart.filter(p => p.qty > 0);
+    renderCart();
+}
+
+function renderCart() {
+    const container = document.getElementById("cartItems");
+
+    document.getElementById("count").textContent =
+        cart.reduce((sum, p) => sum + p.qty, 0);
+
+    document.getElementById("total").textContent =
+        cart.reduce((sum, p) => sum + p.price * p.qty, 0);
+
+    if (cart.length === 0) {
+        container.innerHTML =
+            '<p class="empty">Your cart is empty. Add something delicious!</p>';
+        return;
+    }
+
+    container.innerHTML = cart.map(p => `
+        <div class="cart-item">
+            <span>${p.emoji} ${p.name} × ${p.qty}</span>
+            <span>
+                ₹${p.price * p.qty}
+                <button onclick="changeQty(${p.id}, 1)">+</button>
+                <button onclick="changeQty(${p.id}, -1)">−</button>
+            </span>
+        </div>
+    `).join("");
+}
+
+function checkout() {
+    if (cart.length === 0) {
+        alert("Your cart is empty! Please add an item first.");
+        return;
+    }
+
+    const summary = cart.map(p =>
+        `${p.name} x ${p.qty}`
+    ).join("\n");
+
+    const total = cart.reduce(
+        (sum, p) => sum + p.price * p.qty, 0
+    );
+
+    alert(
+        "☕ Thank you for choosing Glow Cafe!\n\n" +
+        summary + "\n\nTotal: ₹" + total +
+        "\n\nDemo order only. No payment was processed."
+    );
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
+
